@@ -1,0 +1,1 @@
+{"N_C": 7, "F_e": 16, "F_h": [32, 64, 128, 128, 256, 256], "F_skip": 256, "F_c": [512], "Fh_policy": 128, "activation": "relu", "rename": true, "N_rnn": 3}
