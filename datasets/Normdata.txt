@@ -1,0 +1,1 @@
+{'abs_mean': 471.675, 'abs_std': 141.300827, 'emi_mean': 526.50, 'emi_std': 117.02113342285, 'life_mean': 0.438486, 'life_std': 0.603025479, 'PLQY_mean': 0.3320, 'PLQY_std': 0.29980987, 'extin_mean': 4.457222, 'extin_std': 0.5683121085, 'FWHM_Abs_mean': 3594.8867, 'FWHM_Abs_std': 1857.254761, 'FWHM_Emi_mean': 2857.9614258, 'FWHM_Emi_std': 1216.93786621}
