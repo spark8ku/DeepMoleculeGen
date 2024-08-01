@@ -57,7 +57,6 @@ class MoleculeGenerator(nn.Block):
 
     def _policy_0(self, ctx):
         policy_0 = nd.exp(self.policy_0.data(ctx)) # softmax
-#         policy_0 = nd.exp(self.policy_0.data(ctx)-nd.max(self.policy_0.data(ctx))) ### stable softmax
         policy_0 = policy_0/policy_0.sum()
         return policy_0
 
@@ -315,9 +314,7 @@ class CMoleculeGenerator_RNN(MoleculeGenerator_RNN):
         X_mol, h = self._rnn_test(X, NX, NX_rep, NX_cum, h)
         # policy
         append, connect, end = self.policy_h(X, NX, NX_rep, X_mol)
-        
-        #print("append",append,"connect",connect,"end",end,"h",h)
-        
+                
         return append, connect, end, h
 
 
@@ -402,9 +399,7 @@ class OpticalMolGen_RNN(CMoleculeGenerator_RNN):
     def _graph_conv_sol_forward(self,X_sol,A_sol,NX_sol):
         for conv in self.conv_sol:
             X_sol = conv([X_sol, A_sol])
-        #print(X_sol,NX_sol)
         X_sol_avg = reduced_sum()([X_sol,NX_sol])
-        #print(X_sol_avg)
         return self.activation(self.linear_sol_first(X_sol_avg))
     
     def _graph_conv_forward(self, X, A,NX,NX_rep, D_sol,c, ids):
@@ -469,8 +464,6 @@ class reduced_sum(nn.Block):
         
         super(reduced_sum, self).__init__(**kwargs)
         
-        #self.activation = nn.Activation(activation)
-
     def forward(self, inputs):
         assert isinstance(inputs, list)
         graph, NF = inputs
