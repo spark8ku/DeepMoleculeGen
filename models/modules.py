@@ -65,12 +65,8 @@ class Policy(nn.Block):
         if X_end is None:
             X_end = fn.SegmentSumFn(NX_rep, NX.shape[0])(X)/nd.cast(fn.unsqueeze(NX, 1), 'float32')
         X = nd.concat(X, X_end[NX_rep, :], dim=1)
-        #print(X_end)
         X_h = nd.relu(self.linear_h(X)).reshape([-1, self.F_h])
-        #X_h_end = nd.relu(nd.dot(X_end,self.linear_h_t[0].params.get('weight').data().T)).reshape([-1, self.F_h])
         X_h_end = nd.relu(self.linear_h_t(X_end)).reshape([-1, self.F_h])
-        #print(self.linear_h_t(X_end))
-        #print(nd.dot(X_end,self.linear_h_t[0].params.get('weight').data().T))
         i_X_x = self.linear_x(X_h)
         i_X_x_end = self.linear_x_t(X_h_end)
         
@@ -78,13 +74,10 @@ class Policy(nn.Block):
         
         X_x = nd.exp(i_X_x-X_max).reshape([-1, self.k, self.N_B + self.N_B*self.N_A])
         X_x_end = nd.exp(i_X_x_end-X_max).reshape([-1, self.k, 1])
-        #print(X_x_end, nd.sum(fn.SegmentSumFn(NX_rep, NX.shape[0])(X_x), -1, keepdims=True))
         X_sum = nd.sum(fn.SegmentSumFn(NX_rep, NX.shape[0])(X_x), -1, keepdims=True) + X_x_end
         X_sum_gathered = X_sum[NX_rep, :, :]
-        #print(X_sum)
         X_softmax = X_x / X_sum_gathered
         X_softmax_end = X_x_end/ X_sum
-        #print(X_softmax,X_softmax_end)
         if self.k > 1:
             pi = fn.unsqueeze(nd.softmax(self.linear_pi(X_end), axis=1), -1)
             pi_gathered = pi[NX_rep, :, :]
@@ -99,33 +92,6 @@ class Policy(nn.Block):
         connect, append = X_softmax[:, :self.N_B], X_softmax[:, self.N_B:]
         append = append.reshape([-1, self.N_A, self.N_B])
         end = fn.squeeze(X_softmax_end, -1)
-#         if X_end is None:
-#             X_end = fn.SegmentSumFn(NX_rep, NX.shape[0])(X)/nd.cast(fn.unsqueeze(NX, 1), 'float32')
-#         X = nd.concat(X, X_end[NX_rep, :], dim=1)
-#         X_h = nd.relu(self.linear_h(X)).reshape([-1, self.F_h])
-#         X_h_end = nd.relu(self.linear_h_t(X_end)).reshape([-1, self.F_h])
-#         X_x = nd.exp(self.linear_x(X_h)).reshape([-1, self.k, self.N_B + self.N_B*self.N_A])
-#         X_x_end = nd.exp(self.linear_x_t(X_h_end)).reshape([-1, self.k, 1])
-#         X_sum = nd.sum(fn.SegmentSumFn(NX_rep, NX.shape[0])(X_x), -1, keepdims=True) + X_x_end
-#         X_sum_gathered = X_sum[NX_rep, :, :]
-
-#         X_softmax = X_x / X_sum_gathered
-#         X_softmax_end = X_x_end/ X_sum
-
-#         if self.k > 1:
-#             pi = fn.unsqueeze(nd.softmax(self.linear_pi(X_end), axis=1), -1)
-#             pi_gathered = pi[NX_rep, :, :]
-
-#             X_softmax = nd.sum(X_softmax * pi_gathered, axis=1)
-#             X_softmax_end = nd.sum(X_softmax_end * pi, axis=1)
-#         else:
-#             X_softmax = fn.squeeze(X_softmax, 1)
-#             X_softmax_end = fn.squeeze(X_softmax_end, 1)
-
-#         # generate output
-#         connect, append = X_softmax[:, :self.N_B], X_softmax[:, self.N_B:]
-#         append = append.reshape([-1, self.N_A, self.N_B])
-#         end = fn.squeeze(X_softmax_end, -1)
 
         return append, connect, end
 
@@ -155,10 +121,6 @@ class BatchNorm(nn.Block):
         self.eps = eps
 
     def forward(self, x):
-        # return fn.BatchNormFn(self.running_mean.data(x.context),
-        #                       self.running_var.data(x.context),
-        #                       self.momentum, self.eps)(x, self.bn_weight.data(x.context),
-        #                                                self.bn_bias.data(x.context))
         if autograd.is_training():
             return nd.BatchNorm(x,
                                 gamma=self.bn_weight.data(x.context),
