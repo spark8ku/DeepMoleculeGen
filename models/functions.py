@@ -121,21 +121,6 @@ def unsqueeze(input, axis):
 
 
 def logsumexp(inputs, axis=None, keepdims=False):
-    """Numerically stable logsumexp.
-
-    Args:
-        inputs: A Variable with any shape.
-        axis: An integer.
-        keepdims: A boolean.
-
-    Returns:
-        Equivalent of log(sum(exp(inputs), dim=dim, keepdim=keepdim)).
-
-    Adopted from: https://github.com/pytorch/pytorch/issues/2591
-    """
-    # For a 1-D array x (any array along a single dimension),
-    # log sum exp(x) = s + log sum exp(x - s)
-    # with s = max(x) being a common choice.
     if axis is None:
         inputs = inputs.reshape([-1])
         axis = 0
